@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Unused / scratch assets
+vimemory3.png
+
+# Editor noise
+.vscode/
+.idea/
+*.swp

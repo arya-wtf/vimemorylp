@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViMemory — Install Guide (no coding required) · Elux Space</title>
+<meta name="description" content="Install ViMemory in your AI app without writing code. Paste one prompt into Claude or ChatGPT and let it do the setup with you, step by step. Built by Elux Space.">
+<!--
+  Non-tech install guide. Matches index.html design system:
+  Geist (display) + Inter (body) + Space Mono (technical labels/code only).
+  Core idea: the reader doesn't install anything by hand — they paste a prompt
+  into Claude or ChatGPT, and the AI walks them through it on their own machine.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4f1ea;--paper-2:#ebe7dc;--ink:#15130f;--ink-2:#3a352c;--grey:#6b665c;--red:#cc2c14;--rule:#15130f;
+    --display:'Geist','Inter',sans-serif;--body:'Inter',-apple-system,sans-serif;--mono:'Space Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  .wrap{max-width:920px;margin:0 auto;padding:0 28px}
+  h1,h2,h3{font-family:var(--display);line-height:1.05;letter-spacing:-.03em;font-weight:700;text-transform:none}
+  a{color:inherit}
+  .red{color:var(--red)}
+  .mono-label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--grey);font-weight:700}
+  .skip{position:absolute;left:-999px;top:0;background:var(--ink);color:var(--paper);padding:10px 14px;z-index:200}
+  .skip:focus{left:8px;top:8px}
+  a:focus-visible,button:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+
+  .bar{border-bottom:1px solid var(--ink);position:sticky;top:0;background:rgba(244,241,234,.85);backdrop-filter:saturate(140%) blur(8px);z-index:60}
+  .bar .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
+  .brand .sq{width:13px;height:13px;background:var(--red);display:inline-block;border-radius:2px}
+  .bar a.cta{font-family:var(--body);font-weight:600;font-size:13px;border:1px solid var(--ink);padding:9px 16px;border-radius:7px;transition:all .15s}
+  .bar a.cta:hover{background:var(--ink);color:var(--paper)}
+
+  .hero{padding:64px 0 44px}
+  .byline{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--ink);padding:6px 14px;border-radius:100px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);font-weight:700;margin-bottom:24px}
+  .byline b{color:var(--ink);font-weight:700}
+  .byline .dot{width:7px;height:7px;background:var(--red);border-radius:50%;display:inline-block}
+  h1{font-size:clamp(34px,5vw,56px);font-weight:700;max-width:15ch;line-height:1.06;letter-spacing:-.035em}
+  .lede{margin-top:26px;max-width:60ch;font-size:17px;color:var(--ink-2);line-height:1.6;border-left:3px solid var(--red);padding-left:20px}
+  .lede b{color:var(--ink);font-weight:600}
+
+  .time{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:34px}
+  .time .t{padding:18px 20px;border:1px solid var(--ink);border-radius:12px}
+  .time .t .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:700}
+  .time .t .v{font-family:var(--display);font-weight:600;font-size:16px;margin-top:7px;letter-spacing:-.02em}
+
+  section{padding:60px 0;border-top:1px solid var(--ink)}
+  .sec-head{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+  .sec-head h2{font-size:clamp(24px,3.4vw,38px);font-weight:700;letter-spacing:-.035em;line-height:1.05}
+  .sec-head .idx{font-family:var(--mono);font-weight:700;color:var(--red);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+  p.body{max-width:64ch;color:var(--ink-2);font-size:16px;line-height:1.65;margin-bottom:18px}
+  p.body b{color:var(--ink);font-weight:600}
+
+  /* choice cards: Claude vs OpenAI */
+  .choice{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}
+  .choice .c{padding:26px;border:1px solid var(--ink);border-radius:14px;background:rgba(255,255,255,.4)}
+  .choice .c h3{font-family:var(--display);font-size:19px;font-weight:600;letter-spacing:-.02em;margin:8px 0}
+  .choice .c p{font-size:14px;color:var(--ink-2);line-height:1.6}
+  .choice .c .pill{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:700}
+
+  /* prompt box — the thing they copy */
+  .promptbox{border:1px solid var(--ink);border-radius:14px;margin:24px 0;overflow:hidden}
+  .promptbox .ph{background:var(--ink);color:var(--paper);padding:13px 18px;font-family:var(--mono);font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .promptbox .copy{font-family:var(--body);font-weight:600;font-size:12px;background:var(--red);color:var(--paper);border:none;padding:7px 14px;border-radius:6px;cursor:pointer;transition:opacity .15s}
+  .promptbox .copy:hover{opacity:.85}
+  .promptbox pre{padding:22px 20px;white-space:pre-wrap;word-break:break-word;font-family:var(--mono);font-size:13px;line-height:1.75;color:var(--ink);background:rgba(255,255,255,.45)}
+  .promptbox pre .fill{background:var(--red);color:var(--paper);padding:0 5px;border-radius:3px}
+
+  /* numbered steps */
+  .steps{border:1px solid var(--ink);border-radius:14px;overflow:hidden}
+  .stp{display:grid;grid-template-columns:60px 1fr;border-top:1px solid var(--paper-2)}
+  .stp:first-child{border-top:none}
+  .stp .n{font-family:var(--display);font-weight:700;font-size:22px;text-align:center;padding:22px 0;border-right:1px solid var(--paper-2);background:rgba(255,255,255,.35);color:var(--red)}
+  .stp .c{padding:22px}
+  .stp .c b{font-family:var(--display);font-weight:600;font-size:16px;display:block;margin-bottom:6px;letter-spacing:-.02em}
+  .stp .c p{font-size:15px;color:var(--ink-2);line-height:1.6}
+  .stp .c code{font-family:var(--mono);background:var(--ink);color:var(--paper);padding:1px 5px;border-radius:3px;font-size:.85em}
+
+  /* try-it commands */
+  .try{border:1px solid var(--ink);border-radius:14px;margin:20px 0;overflow:hidden}
+  .try .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:700;padding:14px 18px;border-bottom:1px solid var(--paper-2);background:rgba(255,255,255,.35)}
+  .try .ex{padding:15px 18px;border-bottom:1px solid var(--paper-2);font-size:14px;color:var(--ink)}
+  .try .ex:last-child{border-bottom:none}
+  .try .ex .you{font-family:var(--mono);color:var(--grey);text-transform:uppercase;font-size:10px;letter-spacing:.1em;font-weight:700;display:block;margin-bottom:5px}
+
+  /* trouble */
+  .trb{border:1px solid var(--ink);border-radius:14px;overflow:hidden}
+  .trb .row{padding:20px 22px;border-top:1px solid var(--paper-2)}
+  .trb .row:first-child{border-top:none}
+  .trb .row b{font-family:var(--display);font-weight:600;font-size:15px;display:block;margin-bottom:5px;letter-spacing:-.01em}
+  .trb .row span{font-size:14px;color:var(--ink-2);line-height:1.6}
+
+  .callout{border:1px solid var(--red);border-radius:12px;padding:24px;margin:26px 0;background:rgba(204,44,20,.04)}
+  .callout b{font-family:var(--display);font-weight:600;font-size:16px;display:block;margin-bottom:8px;letter-spacing:-.01em}
+  .callout p{font-size:14px;color:var(--ink-2);line-height:1.6}
+
+  .eluxrail{border:1px solid var(--ink);border-radius:16px;margin-top:8px;overflow:hidden}
+  .eluxrail .hd{background:var(--ink);color:var(--paper);padding:13px 24px;font-family:var(--mono);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+  .eluxrail .hd .dot{width:8px;height:8px;background:var(--red);border-radius:50%;display:inline-block}
+  .eluxrail .b{padding:32px 28px}
+  .eluxrail h3{font-family:var(--display);font-weight:700;font-size:clamp(22px,3.2vw,32px);letter-spacing:-.03em;line-height:1.1;max-width:22ch}
+  .eluxrail p{margin-top:16px;max-width:62ch;color:var(--ink-2);font-size:16px;line-height:1.65}
+  .eluxrail a.btn{display:inline-block;margin-top:24px;font-family:var(--body);font-weight:600;font-size:14px;padding:13px 24px;border:1px solid var(--red);border-radius:8px;background:var(--red);color:var(--paper);transition:all .15s}
+  .eluxrail a.btn:hover{background:var(--ink);border-color:var(--ink)}
+
+  footer{border-top:1px solid var(--ink);padding:48px 0;font-size:13px;color:var(--grey)}
+  footer .brand{margin-bottom:14px;color:var(--ink);font-family:var(--display)}
+  footer a{font-weight:600;transition:color .15s}
+
+  @media(max-width:720px){
+    .choice{grid-template-columns:1fr}
+    .time{grid-template-columns:1fr}
+    .stp .n{font-size:18px}
+  }
+</style>
+</head>
+<body>
+<a href="#start" class="skip">Skip to the steps</a>
+
+<div class="bar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="sq"></span>ViMemory</a>
+    <a href="index.html#get" class="cta">Get your key →</a>
+  </div>
+</div>
+
+<main>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="byline"><span class="dot"></span>Install guide · <b>no coding required</b></span>
+    <h1>Let the AI install it <span class="red">for you.</span></h1>
+    <p class="lede">You don't need to know what a terminal is. The trick: <b>you paste one prompt into Claude or ChatGPT, and it runs the setup with you</b> — one small step at a time, checking each step worked before moving on. You just copy, paste, and answer when it asks.</p>
+
+    <div class="time">
+      <div class="t"><span class="k">Time</span><div class="v">~10 minutes</div></div>
+      <div class="t"><span class="k">Coding</span><div class="v">None</div></div>
+      <div class="t"><span class="k">You need</span><div class="v">Your key email + Claude or ChatGPT</div></div>
+    </div>
+  </header>
+
+</div>
+
+<!-- WHAT YOU NEED -->
+<section id="start">
+  <div class="wrap">
+    <div class="sec-head"><span class="idx">00 /</span><h2>Before you start</h2></div>
+    <p class="body">Open the email we sent you. It has three things you'll paste in later — keep that tab open:</p>
+    <div class="steps">
+      <div class="stp"><div class="n">A</div><div class="c"><b>Your secret key</b><p>A line that starts with <code>msk_</code>. It's yours alone — your own memory. Don't share it.</p></div></div>
+      <div class="stp"><div class="n">B</div><div class="c"><b>The endpoint URL</b><p>The address of our gateway, e.g. <code>https://vimemory.xyz</code>. This is where your memory lives.</p></div></div>
+      <div class="stp"><div class="n">C</div><div class="c"><b>The two GitHub links</b><p>The open code. You don't read it to use it — your AI assistant does that for you.</p></div></div>
+    </div>
+    <div class="callout">
+      <b>Don't have the email yet?</b>
+      <p>Grab your key first — it takes one email and a confirm click. <a href="index.html#get" class="red"><b>Get your key →</b></a></p>
+    </div>
+  </div>
+</section>
+
+<!-- PICK YOUR ASSISTANT -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="idx">01 /</span><h2>Pick your helper</h2></div>
+    <p class="body">Either one works. This is the AI that will <b>do the install with you</b> by reading the setup instructions and giving you exact things to copy. Pick whichever you already have open.</p>
+    <div class="choice">
+      <div class="c">
+        <span class="pill">Option 1</span>
+        <h3>Claude</h3>
+        <p>Claude Desktop or claude.ai. Best if you're going to use ViMemory inside Claude Desktop anyway — it can see its own config.</p>
+      </div>
+      <div class="c">
+        <span class="pill">Option 2</span>
+        <h3>ChatGPT (OpenAI)</h3>
+        <p>chatgpt.com. Works just as well — it'll hand you the same copy-paste steps for your computer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE MASTER PROMPT -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="idx">02 /</span><h2>Paste this prompt</h2></div>
+    <p class="body">Copy the whole block below into a fresh Claude or ChatGPT chat. Replace the <span style="background:var(--red);color:var(--paper);padding:0 5px">red bits</span> with the key and URL from your email. Then send it — and follow along. The AI will go one step at a time and wait for you.</p>
+
+    <div class="promptbox">
+      <div class="ph"><span>Master setup prompt — copy all</span><button class="copy" type="button" onclick="copyPrompt()">Copy</button></div>
+      <pre id="prompt">I'm not a developer. Help me install the "ViMemory" memory tool into Claude Desktop, one small step at a time. Wait for me to confirm each step worked before giving me the next one. Explain every command in one plain sentence before I run it, and tell me exactly where to type it (Terminal on Mac, or Command Prompt on Windows).
+
+Here are my details:
+- My computer is: <span class="fill">Mac OR Windows</span>
+- My ViMemory secret key: <span class="fill">msk_paste_your_key_here</span>
+- My ViMemory endpoint URL: <span class="fill">https://vimemory.xyz</span>
+
+The tool is a small "MCP server" published here:
+https://github.com/arya-wtf/vimemory-localmcp
+
+What I want at the end:
+1. The code from that GitHub repo downloaded onto my computer.
+2. Python installed if I don't already have it.
+3. The "vimemory" connector added to my Claude Desktop config file, using my key and URL above.
+4. Claude Desktop restarted so the four memory tools (save_memory, search_memory, list_memory, delete_memory) show up.
+
+Start by checking what I already have installed. Go.</pre>
+    </div>
+
+    <p class="body" style="margin-top:6px"><b>Using ChatGPT instead?</b> Same prompt — just change the first line to say "Help me install it and tell me exactly what to type on my computer," since ChatGPT can't see your files directly. It'll still give you every copy-paste step.</p>
+  </div>
+</section>
+
+<!-- WHAT THE AI WILL WALK YOU THROUGH -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="idx">03 /</span><h2>What it'll have you do</h2></div>
+    <p class="body">So nothing feels like a surprise — here's the shape of what the assistant guides you through. You don't memorise this; it's just a map.</p>
+    <div class="steps">
+      <div class="stp"><div class="n">1</div><div class="c"><b>Download the connector</b><p>One command copies the small program from GitHub onto your machine. The AI gives you the exact line to paste.</p></div></div>
+      <div class="stp"><div class="n">2</div><div class="c"><b>Install the bits it needs</b><p>If Python isn't there, the AI walks you through getting it, then installs the connector's requirements. One or two commands.</p></div></div>
+      <div class="stp"><div class="n">3</div><div class="c"><b>Add your key to Claude</b><p>The AI opens your Claude Desktop config and pastes in a small block with <b>your</b> key and URL. This is what links you to your own memory.</p></div></div>
+      <div class="stp"><div class="n">4</div><div class="c"><b>Restart Claude Desktop</b><p>Quit it fully and reopen. You'll see <code>vimemory</code> in the tools (🔌) list. Done.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRY IT -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="idx">04 /</span><h2>Try it — just talk</h2></div>
+    <p class="body">Once it's installed, you don't run anything. You just tell Claude in plain words. Try these:</p>
+    <div class="try">
+      <div class="lab">Type these straight into Claude</div>
+      <div class="ex"><span class="you">Save something</span>"Save this to my memory: our pricing for Project-X is 500k/mo on the Pro tier."</div>
+      <div class="ex"><span class="you">Recall it later — even in another model</span>"What do we know about Project-X pricing?"</div>
+      <div class="ex"><span class="you">See what's saved</span>"List my recent memories."</div>
+      <div class="ex"><span class="you">Clear one out</span>"Delete memory abc123."</div>
+    </div>
+    <p class="body"><b>The whole point:</b> hit a limit in Claude, switch to another model pointed at the same key, and your memory is already there. Ask it to recall — it picks up where you stopped.</p>
+    <div class="callout">
+      <b>Heads up — this is a trial key</b>
+      <p>Your key holds a small number of memories so you can feel it without setup. When it fills, delete one to make room — or, when you're ready for unlimited memory for your whole team, run your own server (next section). That wall is on purpose.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RUN YOUR OWN -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="idx">05 /</span><h2>Want your own server?</h2></div>
+    <p class="body">The trial runs on our gateway. When you want your <b>own</b> — unlimited memory, your data on your box, keys for your whole team — the full server is open too. Same trick: let the AI drive.</p>
+    <div class="promptbox">
+      <div class="ph"><span>Self-host setup prompt — copy all</span><button class="copy" type="button" onclick="copyPrompt2()">Copy</button></div>
+      <pre id="prompt2">I want to run the "ViMemory" server on my own VPS (a small Ubuntu cloud server). I'm not a developer — walk me through it one step at a time and wait for me to confirm each step. Explain each command in one plain sentence first.
+
+The server code and a step-by-step VPS guide are here:
+https://github.com/arya-wtf/vimemory
+
+Help me: rent or use an Ubuntu server, install Docker, clone that repo, start it with docker compose, point my domain at it, and create my first user key with the manage.py adduser command. At the end I should be able to open https://my-domain/health and see {"ok":true}.
+
+Start by asking me whether I already have a server and a domain. Go.</pre>
+    </div>
+    <p class="body">That's the same open code we run. Nothing hidden — <a href="https://github.com/arya-wtf/vimemory" target="_blank" rel="noopener" class="red"><b>read it here</b></a>.</p>
+  </div>
+</section>
+
+<!-- TROUBLESHOOT -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="idx">06 /</span><h2>If something's off</h2></div>
+    <p class="body">Paste any error straight back to your AI assistant — that's the fastest fix. Common ones:</p>
+    <div class="trb">
+      <div class="row"><b>The vimemory tool doesn't appear</b><span>Fully quit Claude Desktop (not just close the window) and reopen. Ask your AI to double-check the config file has no missing commas and uses full file paths.</span></div>
+      <div class="row"><b>"Missing config" in the logs</b><span>The key or URL didn't get saved into the config. Ask your AI to re-open the config and confirm your <code>msk_</code> key and URL are both filled in.</span></div>
+      <div class="row"><b>401 error when saving</b><span>The key is wrong or expired. Re-check it against your email, or reply to us for a fresh one.</span></div>
+      <div class="row"><b>Nothing connects at all</b><span>Ask your AI to open your endpoint URL with <code>/health</code> on the end — it should say <code>{"ok":true}</code>. If not, reply to your welcome email and we'll check our gateway.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- BRIDGE -->
+<section>
+  <div class="wrap">
+    <div class="eluxrail">
+      <div class="hd"><span class="dot"></span>Stuck or want more?</div>
+      <div class="b">
+        <h3>You're in. When the trial fills, run your own.</h3>
+        <p>That's the whole tool — installed without writing a line of code. When your trial key fills up, or you want unlimited memory for your whole team, the full server is open and yours to run. The self-host prompt above gets you there the same way: let the AI drive.</p>
+        <a href="index.html#get" class="btn">Back to ViMemory →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="sq"></span>ViMemory</a>
+    <p style="margin-top:14px">© 2026 · A working build by <a href="https://www.elux.space" target="_blank" rel="noopener" style="color:var(--ink);font-weight:700">Elux Space</a> · We don't just design it. We build it.</p>
+  </div>
+</footer>
+
+<script>
+function copyText(id, btn){
+  var el = document.getElementById(id);
+  var text = el.innerText;
+  navigator.clipboard.writeText(text).then(function(){
+    var b = btn || event.target;
+    var old = b.textContent; b.textContent = 'Copied ✓';
+    setTimeout(function(){ b.textContent = old; }, 1600);
+  });
+}
+function copyPrompt(){ copyText('prompt', event.target); }
+function copyPrompt2(){ copyText('prompt2', event.target); }
+</script>
+
+</body>
+</html>

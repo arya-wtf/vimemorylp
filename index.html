@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViMemory — A memory layer every AI model reads from. Built by Elux Space.</title>
+<meta name="description" content="We kept hitting model limits, so we built our own memory layer that every AI reads from. Open code, plain-English docs, install it yourself. A working build by Elux Space — the team you'd hire to build yours.">
+<!--
+  DESIGN SYSTEM — committed (brutalist / raw editorial). The honesty IS the design.
+  Paper #f4f1ea · Ink #15130f · Alarm red #cc2c14 · Mid grey #6b665c
+  Type: Geist (display) + Inter (body) + Space Mono (technical labels/code only).
+  v3.1: rebuilt type hierarchy, softened to 1px rounded components for agency-grade polish.
+  v3 narration: reframed from product-waitlist → Elux build-proof lead magnet.
+  Goal: ViMemory is the hook scattered across Elux channels (Dribbble/Contra/IG/X).
+  The proof of capability is the BUILD itself — promoted, not buried.
+  Email unlocks the package: secret key + endpoint URL + docs + GitHub repos.
+  Tie-back rail makes the magnet point at Elux Space throughout. Approach A.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4f1ea;
+    --paper-2:#ebe7dc;
+    --ink:#15130f;
+    --ink-2:#3a352c;
+    --grey:#6b665c;
+    --red:#cc2c14;
+    --rule:#15130f;
+    /* type system: Geist (display) · Inter (body) · Space Mono (accent only) */
+    --display:'Geist','Inter',sans-serif;
+    --body:'Inter',-apple-system,sans-serif;
+    --mono:'Space Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:var(--body);font-size:16px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+  /* hierarchy: display headings in Geist, mixed-case, real weight steps */
+  h1,h2,h3{font-family:var(--display);line-height:1.05;letter-spacing:-.03em;font-weight:700;text-transform:none}
+  a{color:inherit}
+  .red{color:var(--red)}
+  /* mono earns its keep ONLY as a small technical label */
+  .mono-label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--grey);font-weight:700}
+
+  /* ---- skip link / a11y ---- */
+  .skip{position:absolute;left:-999px;top:0;background:var(--ink);color:var(--paper);padding:10px 14px;z-index:200}
+  .skip:focus{left:8px;top:8px}
+  a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+
+  /* ---- top bar ---- */
+  .bar{border-bottom:1px solid var(--ink);position:sticky;top:0;background:rgba(244,241,234,.85);backdrop-filter:saturate(140%) blur(8px);z-index:60}
+  .bar .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
+  .brand .sq{width:13px;height:13px;background:var(--red);display:inline-block;border-radius:2px}
+  .bar .nav{display:flex;align-items:center;gap:22px}
+  .bar a.navlink{font-family:var(--body);font-weight:500;font-size:14px;color:var(--ink-2);transition:color .15s}
+  .bar a.navlink:hover{color:var(--ink)}
+  .bar a.cta{font-family:var(--body);font-weight:600;font-size:13px;letter-spacing:0;
+    border:1px solid var(--ink);padding:9px 16px;border-radius:7px;transition:all .15s}
+  .bar a.cta:hover{background:var(--ink);color:var(--paper)}
+  @media(max-width:520px){.bar a.navlink{display:none}}
+
+  /* ---- hero (two-column: text left, image right) ---- */
+  .hero{padding:64px 0 72px;display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center}
+  .hero-text{min-width:0}
+  .hero .tag{margin-bottom:24px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--ink);
+    padding:6px 14px;border-radius:100px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-2);font-weight:700}
+  .hero .tag .dot{width:7px;height:7px;background:var(--red);border-radius:50%}
+  /* headline: Geist, one deliberate sentence */
+  h1{font-size:clamp(30px,3.6vw,46px);font-weight:700;max-width:16ch;line-height:1.1;letter-spacing:-.03em}
+  h1 .red{color:var(--red)}
+  h1 .mark{position:relative;white-space:nowrap;z-index:0}
+  h1 .mark::after{content:"";position:absolute;left:-3px;right:-3px;bottom:.06em;height:.34em;background:var(--red);opacity:.18;z-index:-1;border-radius:2px}
+  /* caption — clear hierarchy: hook → belief → truth */
+  .caption{margin-top:28px;max-width:48ch}
+  .caption p{margin-bottom:15px}
+  .caption p:last-child{margin-bottom:0}
+  .caption .q{font-family:var(--display);font-weight:600;font-size:clamp(17px,1.6vw,21px);
+    color:var(--ink);letter-spacing:-.02em;line-height:1.3}
+  .caption .triplet{font-family:var(--body);font-weight:400;font-size:clamp(14px,1.2vw,16px);
+    color:var(--ink-2);line-height:1.65}
+  .caption .triplet b{font-family:var(--display);font-weight:700;color:var(--ink);letter-spacing:-.01em}
+  .caption .kicker{font-size:clamp(14px,1.2vw,16px);font-weight:400;color:var(--ink-2);line-height:1.65}
+  .caption .kicker b{color:var(--ink);font-weight:600;border-bottom:2px solid var(--red);padding-bottom:1px}
+  .hero-actions{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap}
+  .hero-actions a{font-family:var(--body);font-weight:600;font-size:14px;letter-spacing:0;
+    padding:13px 24px;border-radius:8px;border:1px solid var(--ink);transition:all .15s}
+  .hero-actions a.primary{background:var(--red);color:var(--paper);border-color:var(--red)}
+  .hero-actions a.primary:hover{background:var(--ink);border-color:var(--ink)}
+  .hero-actions a.secondary{background:transparent}
+  .hero-actions a.secondary:hover{background:var(--ink);color:var(--paper)}
+  .hero-foot{margin-top:18px;font-size:13px;color:var(--grey)}
+  /* context-flow diagram — transparent PNG straight on paper, no card */
+  .flowshot{margin:0}
+  .flowshot img{display:block;width:100%;max-width:520px;height:auto;margin:0 auto}
+  .flowshot figcaption{margin-top:16px;text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.03em;
+    color:var(--grey);text-transform:uppercase}
+
+  /* ---- generic section ---- */
+  section{padding:84px 0;border-top:1px solid var(--ink)}
+  .sec-head{display:flex;flex-direction:column;gap:8px;margin-bottom:44px}
+  .sec-head h2{font-size:clamp(28px,4vw,46px);font-weight:700;letter-spacing:-.035em;line-height:1.05}
+  .sec-head .idx{font-family:var(--mono);font-weight:700;color:var(--red);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+
+  /* what it actually does */
+  .does{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .does .cell{padding:28px;border:1px solid var(--ink);border-radius:14px;background:rgba(255,255,255,.4)}
+  .does .cell .k{font-family:var(--mono);font-weight:700;font-size:11px;letter-spacing:.1em;color:var(--red);text-transform:uppercase}
+  .does .cell h3{font-family:var(--display);font-size:20px;font-weight:600;letter-spacing:-.02em;margin:12px 0 8px}
+  .does .cell p{font-size:15px;color:var(--ink-2);line-height:1.6}
+
+  /* who it's for / not for */
+  .forwho{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .forwho .col{padding:28px;border:1px solid var(--ink);border-radius:14px}
+  .forwho h3{font-family:var(--display);font-size:18px;font-weight:600;letter-spacing:-.02em;margin-bottom:18px}
+  .forwho ul{list-style:none}
+  .forwho li{display:flex;gap:11px;padding:10px 0;border-top:1px solid var(--paper-2);font-size:15px;color:var(--ink-2);line-height:1.5}
+  .forwho li:first-child{border-top:none}
+  .forwho .mk{font-weight:700;flex:none}
+  .forwho .yes .mk{color:#1f7a3d}
+  .forwho .no .mk{color:var(--red)}
+
+  /* tech stack */
+  .stack-intro{max-width:62ch;color:var(--ink-2);font-size:16px;line-height:1.65;margin-bottom:24px;margin-top:-20px}
+  .archshot{margin:0 0 16px;text-align:center;border:1px solid var(--ink);border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,.15));padding:40px 32px 28px}
+  .archshot img{display:block;width:100%;max-width:760px;height:auto;margin:0 auto}
+  .archshot figcaption{margin-top:24px;padding-top:20px;border-top:1px solid var(--paper-2);
+    font-family:var(--mono);font-size:12px;letter-spacing:.03em;color:var(--grey);text-transform:uppercase;max-width:60ch;margin-left:auto;margin-right:auto}
+  .stack-label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--grey);font-weight:700;margin:0 0 16px}
+  .stack-list{border:1px solid var(--ink);border-radius:14px;overflow:hidden}
+  .stk{display:grid;grid-template-columns:210px 1fr;border-top:1px solid var(--paper-2)}
+  .stk:first-child{border-top:none}
+  .stk .name{padding:22px;border-right:1px solid var(--paper-2);background:rgba(255,255,255,.35)}
+  .stk .name b{font-family:var(--display);font-weight:600;font-size:16px;display:block;letter-spacing:-.02em}
+  .stk .name .role{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#a8200f;font-weight:700;margin-top:6px;display:block}
+  .stk .why{padding:22px;font-size:15px;color:var(--ink-2);line-height:1.65}
+  .stk .why b{color:var(--ink);font-weight:600}
+
+  .price-line{margin-top:0;margin-bottom:4px;max-width:62ch;color:var(--ink-2);font-size:16px;line-height:1.65}
+  .price-line b{color:var(--ink);font-weight:600}
+
+  footer{border-top:1px solid var(--ink);padding:48px 0;font-size:13px;color:var(--grey)}
+  footer .brand{margin-bottom:14px;color:var(--ink);font-family:var(--display)}
+  footer a{transition:color .15s}
+
+  /* ---- byline chip (in hero, uses .tag styling) ---- */
+  .byline{display:inline-flex;align-items:center;gap:8px}
+  .byline b{color:var(--ink);font-weight:700}
+  .byline .dot{width:7px;height:7px;background:var(--red);border-radius:50%;display:inline-block}
+
+  /* ---- bridge rail ---- */
+  .eluxrail{border:1px solid var(--ink);border-radius:16px;overflow:hidden}
+  .eluxrail .hd{background:var(--ink);color:var(--paper);padding:13px 24px;font-family:var(--mono);
+    font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+  .eluxrail .hd .dot{width:8px;height:8px;background:var(--red);border-radius:50%;display:inline-block}
+  .eluxrail .body{padding:34px 28px}
+  .eluxrail h3{font-family:var(--display);font-weight:700;font-size:clamp(22px,3.4vw,34px);
+    letter-spacing:-.03em;line-height:1.1;max-width:22ch}
+  .eluxrail p{margin-top:16px;max-width:64ch;color:var(--ink-2);font-size:16px;line-height:1.65}
+  .eluxrail p b{color:var(--ink);font-weight:600}
+  .eluxrail .acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+  .eluxrail a.btn{font-family:var(--body);font-weight:600;font-size:14px;
+    padding:13px 22px;border:1px solid var(--ink);border-radius:8px;transition:all .15s}
+  .eluxrail a.btn.solid{background:var(--red);color:var(--paper);border-color:var(--red)}
+  .eluxrail a.btn.solid:hover{background:var(--ink);border-color:var(--ink)}
+  .eluxrail a.btn.ghost:hover{background:var(--ink);color:var(--paper)}
+
+  /* ---- email-for-package capture ---- */
+  .pack{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px}
+  .pack .left{padding:30px;border:1px solid var(--ink);border-radius:14px}
+  .pack .right{padding:30px;background:var(--ink);color:var(--paper);border-radius:14px}
+  .pack h3{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:-.02em;margin-bottom:18px}
+  .pack .right h3{color:var(--paper)}
+  .pack ul{list-style:none}
+  .pack li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:13px 0;border-top:1px solid var(--paper-2);align-items:start}
+  .pack li:first-of-type{border-top:none}
+  .pack li .ic{color:var(--red);font-weight:700;font-size:15px;line-height:1.4}
+  .pack li b{font-family:var(--display);font-weight:600;font-size:14px;display:block;letter-spacing:-.01em;margin-bottom:2px}
+  .pack li span{font-size:14px;color:var(--ink-2);line-height:1.55}
+  .pform label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,241,234,.6);display:block;margin-bottom:9px}
+  .pform input[type=email]{width:100%;font-family:var(--body);font-size:15px;padding:14px 14px;border:1px solid rgba(244,241,234,.3);
+    border-radius:8px;background:rgba(244,241,234,.06);color:var(--paper)}
+  .pform input[type=email]::placeholder{color:rgba(244,241,234,.45)}
+  .pform input[type=email]:focus{border-color:var(--red);outline:none}
+  .pform button{width:100%;margin-top:14px;font-family:var(--body);font-weight:600;font-size:15px;
+    padding:15px;border:1px solid var(--red);border-radius:8px;background:var(--red);color:var(--paper);cursor:pointer;transition:opacity .15s}
+  .pform button:hover{opacity:.9}
+  .pform .formMsg{margin-top:14px;font-size:13.5px;line-height:1.5;display:none}
+  .pform .formMsg.show{display:block}
+  .pform .formMsg.ok{color:#7dd39b}
+  .pform .formMsg.err{color:#ff8a7a}
+  .pform button:disabled{opacity:.55;cursor:default}
+  .pform .fine{margin-top:14px;font-size:12px;color:rgba(244,241,234,.55);line-height:1.55}
+  .pform .verify{margin-top:10px;font-size:12px;color:rgba(244,241,234,.8);border-left:2px solid var(--red);padding-left:11px}
+  code{font-family:var(--mono);background:var(--ink);color:var(--paper);padding:1px 5px;border-radius:3px;font-size:.85em}
+  .pack .right code{background:rgba(244,241,234,.15)}
+
+  /* ---- honest caveats strip ---- */
+  .honest{border:1px solid var(--ink);border-radius:12px;display:grid;grid-template-columns:auto 1fr;margin-top:28px;overflow:hidden}
+  .honest .lab{background:var(--ink);color:var(--paper);font-family:var(--mono);font-weight:700;font-size:11px;
+    letter-spacing:.16em;text-transform:uppercase;padding:18px 20px;display:flex;align-items:center;writing-mode:vertical-rl;transform:rotate(180deg)}
+  .honest ul{list-style:none;padding:6px 0}
+  .honest li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:13px 22px;border-top:1px solid var(--paper-2);align-items:baseline}
+  .honest li:first-child{border-top:none}
+  .honest li .x{color:var(--red);font-weight:700}
+  .honest li b{font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:-.01em}
+  .honest li span{color:var(--ink-2);font-size:14px}
+
+  /* ---- How it works — scroll timeline + product mocks ---- */
+  .timeline{position:relative}
+  .vtrack{position:absolute;width:2px;background:var(--paper-2);z-index:1}
+  .vfill{width:100%;height:0%;background:var(--red);transition:height .35s ease}
+  .srow{display:grid;grid-template-columns:1fr 72px 1fr;align-items:center;padding:44px 0;border-top:1px solid var(--paper-2)}
+  .srow:first-child{border-top:none}
+  .svisual{border:1px solid var(--ink);border-radius:12px;background:#fff;overflow:hidden;min-height:190px;display:flex;flex-direction:column;box-shadow:0 4px 24px rgba(21,19,15,.06)}
+  .spin{display:flex;justify-content:center;align-items:center;position:relative;z-index:2}
+  .scirc{width:44px;height:44px;background:var(--paper);border:1px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:var(--display);font-weight:700;font-size:17px;color:var(--grey);transition:background .35s,color .35s,border-color .35s}
+  .scirc.active{background:var(--red);border-color:var(--red);color:var(--paper)}
+  .sbody{padding-left:30px}
+  .sbody h3{font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:-.02em;margin-bottom:9px}
+  .sbody p{font-size:15px;color:var(--ink-2);line-height:1.6}
+  /* mock window */
+  .mock{width:100%;flex:1;display:flex;flex-direction:column;font-family:var(--body)}
+  .mock-top{display:flex;align-items:center;gap:6px;padding:10px 13px;border-bottom:1px solid var(--paper-2);background:#faf9f5}
+  .mock-dot{width:9px;height:9px;border-radius:50%;background:#d8d4cc;flex-shrink:0}
+  .mock-dot.r{background:var(--red)}
+  .mock-name{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--grey);letter-spacing:.08em;text-transform:uppercase;margin-left:6px}
+  .mock-b{flex:1;padding:14px;display:flex;flex-direction:column;gap:9px}
+  .mock-msg{padding:9px 12px;font-size:12.5px;line-height:1.5;max-width:90%;border-radius:9px}
+  .mock-msg.user{background:var(--ink);color:var(--paper);align-self:flex-end}
+  .mock-msg.ai{background:#f0ede6;color:var(--ink);align-self:flex-start}
+  .mock-check{color:#1f7a3d;font-weight:700;margin-right:4px}
+  .mock-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--paper-2);border-radius:7px;font-size:12.5px;color:var(--ink)}
+  .mock-row.faded{opacity:.4}
+  .mock-row.picked{border-color:var(--red);background:#fff6f4}
+  .mock-radio{width:9px;height:9px;border:1.5px solid var(--ink);flex-shrink:0}
+  .mock-radio.on{background:var(--red);border-color:var(--red)}
+  .mock-tag{margin-left:auto;font-size:10px;color:var(--grey);text-transform:uppercase;letter-spacing:.06em}
+  .mock-tag.go{color:#1f7a3d;font-weight:700}
+  .mock-search{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--paper-2);background:#faf9f5;font-size:12px;color:var(--grey)}
+  .mock-search strong{color:var(--ink);font-weight:600}
+  .mock-res{display:flex;align-items:flex-start;gap:8px;padding:9px 0;font-size:12.5px;color:var(--ink);border-bottom:1px solid #ede9e0;line-height:1.45}
+  .mock-res:last-child{border-bottom:none}
+  .mock-res::before{content:'↳';color:var(--red);font-weight:700;flex-shrink:0}
+
+  @media(max-width:860px){
+    .hero{grid-template-columns:1fr;gap:40px;padding:56px 0 64px}
+    .hero-text{order:1}
+    .flowshot{order:2}
+    .flowshot img{max-width:440px}
+  }
+  @media(max-width:720px){
+    .does,.forwho{grid-template-columns:1fr}
+    .stk{grid-template-columns:1fr}
+    .stk .name{border-right:none;border-bottom:1px solid var(--paper-2)}
+    .pack{grid-template-columns:1fr}
+    /* timeline → vertical on mobile */
+    .timeline{padding-left:46px;position:relative}
+    .vtrack{left:18px !important;top:0 !important;height:100% !important}
+    .srow{display:flex;flex-direction:column;align-items:flex-start;gap:16px;padding:26px 0;position:relative}
+    .svisual{width:100%;min-height:auto;order:1}
+    .spin{position:absolute;left:-46px;top:26px;width:38px;justify-content:flex-start}
+    .scirc{width:36px;height:36px;font-size:14px}
+    .sbody{padding-left:0;order:2;width:100%}
+  }
+</style>
+</head>
+<body>
+<a href="#get" class="skip">Skip to get the build</a>
+
+<div class="bar">
+  <div class="wrap">
+    <span class="brand"><span class="sq"></span>ViMemory</span>
+    <nav class="nav">
+      <a href="install.html" class="navlink">Install guide</a>
+      <a href="#get" class="cta">Get the build →</a>
+    </nav>
+  </div>
+</div>
+
+<main>
+<div class="wrap">
+
+  <!-- HERO — build-proof narration: normalize → reframe → thesis → question → triplet → kicker -->
+  <header class="hero">
+    <div class="hero-text">
+      <span class="byline tag"><span class="dot"></span>Bring your memory with you / your team</span>
+      <h1>Hit the limit in Claude. Switch to <span class="red">Opencode + DeepSeek Flash</span> <span class="mark">without losing context.</span></h1>
+
+      <div class="caption">
+        <!-- rhetorical question -->
+        <p class="q">Still writing .md files or copy-pasting your chat into the next AI tool?</p>
+        <!-- belief / triplet -->
+        <p class="triplet">We believe what should carry over is simple: <b>Your context. Your decisions. Your thread.</b></p>
+        <!-- contrarian kicker -->
+        <p class="kicker">The model you use matters less than the <b>memory that follows you</b> into the next one.</p>
+      </div>
+
+      <div class="hero-actions">
+        <a href="#get" class="primary">Get the build + your key →</a>
+        <a href="#get" class="secondary">See what's in the package</a>
+      </div>
+    </div>
+
+    <figure class="flowshot">
+      <img src="rasyacta.png" alt="Context flow: hit the limit in Claude Desktop, the thread passes through ViMemory, and continues in opencode." loading="lazy">
+      <figcaption>Hit the limit in Claude. Switch to opencode. ViMemory carries the thread.</figcaption>
+    </figure>
+  </header>
+
+</div>
+
+<!-- WHAT IT ACTUALLY DOES -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="idx">01 /</span><h2>What it actually does</h2></div>
+    <p class="stack-intro">Four things, built to work — not slideware. Read them as a spec sheet of the decisions behind it.</p>
+    <div class="does">
+      <div class="cell">
+        <span class="k">Carries context</span>
+        <h3>Switch models, keep the thread</h3>
+        <p>Save in Claude. Recall in opencode, ChatGPT, DeepSeek, Gemma — whatever you run. No re-pasting, no re-explaining. The limit stops the chat, not the work.</p>
+      </div>
+      <div class="cell">
+        <span class="k">Isolated per person</span>
+        <h3>Your memory is yours</h3>
+        <p>Each teammate gets an isolated namespace. You can't read theirs, they can't read yours. Isolation is enforced, not promised.</p>
+      </div>
+      <div class="cell">
+        <span class="k">Finds by meaning</span>
+        <h3>Ask however you want</h3>
+        <p>"Harga" finds "pricing." It matches on meaning, not exact words — so recall works even when you phrase it differently.</p>
+      </div>
+      <div class="cell">
+        <span class="k">Your infrastructure</span>
+        <h3>Nothing leaves your server</h3>
+        <p>Self-hosted on your own box. No third party holds your team's memory. You keep the keys, literally.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW — scroll timeline + product mocks -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="idx">02 /</span><h2>How it works</h2></div>
+    <div class="timeline" id="timeline">
+      <div class="vtrack" id="vtrack"><div class="vfill" id="vfill"></div></div>
+
+      <!-- Step 1 -->
+      <div class="srow">
+        <div class="svisual">
+          <div class="mock">
+            <div class="mock-top"><span class="mock-dot r"></span><span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-name">ViMemory</span></div>
+            <div class="mock-b">
+              <div class="mock-msg user">"save this to vimemory mcp"</div>
+              <div class="mock-msg ai"><span class="mock-check">✓</span> Saved — "Architecture: FastAPI gateway, self-hosted on your own server."</div>
+            </div>
+          </div>
+        </div>
+        <div class="spin"><div class="scirc"><span>1</span></div></div>
+        <div class="sbody">
+          <h3>Save from your chat</h3>
+          <p>Tell your AI: "save this to vimemory mcp." It summarizes and stores it. One line, done.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="srow">
+        <div class="svisual">
+          <div class="mock">
+            <div class="mock-top"><span class="mock-dot r"></span><span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-name">Switch model</span></div>
+            <div class="mock-b">
+              <div class="mock-row faded"><span class="mock-radio"></span>Claude<span class="mock-tag">rate limited</span></div>
+              <div class="mock-row picked"><span class="mock-radio on"></span>Opencode + DeepSeek Flash<span class="mock-tag go">switch →</span></div>
+              <div class="mock-row"><span class="mock-radio"></span>MiniMax M2.7<span class="mock-tag"></span></div>
+              <div class="mock-row"><span class="mock-radio"></span>ChatGPT<span class="mock-tag"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="spin"><div class="scirc"><span>2</span></div></div>
+        <div class="sbody">
+          <h3>Hit a limit, switch interface and AI models</h3>
+          <p>Out of Claude credits? Move to Opencode or other interface. Bring your memory there.</p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="srow">
+        <div class="svisual">
+          <div class="mock">
+            <div class="mock-top"><span class="mock-dot r"></span><span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-name">Recall</span></div>
+            <div class="mock-search">🔍 <strong>pricing decision</strong></div>
+            <div class="mock-b">
+              <div class="mock-res">Pricing set at $8/mo — decided 3 days ago</div>
+              <div class="mock-res">Team size capped at 24 users</div>
+              <div class="mock-res">Monthly billing, no trial period</div>
+            </div>
+          </div>
+        </div>
+        <div class="spin"><div class="scirc"><span>3</span></div></div>
+        <div class="sbody">
+          <h3>Recall and continue</h3>
+          <p>Ask the new model. It pulls the relevant context by meaning and picks up where you stopped.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK (CONTENT UNCHANGED per brief) -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="idx">03 /</span><h2>Under the hood</h2></div>
+    <p class="stack-intro">No black box. Here's exactly what runs and why each piece is there. If a term's new to you, the plain-English bit after it is the part that matters.</p>
+
+    <!-- the path a request takes -->
+    <figure class="archshot">
+      <img src="architecturevi.png" alt="Architecture: you send a request through Caddy (HTTPS front door) to the FastAPI Gateway, which uses an Embedding model and stores data in Qdrant and SQLite." loading="lazy">
+      <figcaption>You → Caddy → Gateway → Qdrant + SQLite. The embedding model feeds the Gateway. One key, one namespace.</figcaption>
+    </figure>
+
+    <p class="stack-label">Every box, in plain English ↓</p>
+    <div class="stack-list">
+      <div class="stk">
+        <div class="name"><b>FastAPI Gateway</b><span class="role">The brain</span></div>
+        <div class="why">The one service everything talks to. It takes your text, decides what to do with it, and enforces that <b>your API key only ever touches your own memory</b>. Written in Python. Built it ourselves — it's the part that's actually "ViMemory."</div>
+      </div>
+      <div class="stk">
+        <div class="name"><b>Embedding model</b><span class="role">Turns words into math</span></div>
+        <div class="why">A small model (all-MiniLM) that converts text into a list of numbers. Text with <b>similar meaning gets similar numbers</b> — that's how "harga" can find "pricing." Runs locally on your server, so it's free and nothing gets sent out to an API.</div>
+      </div>
+      <div class="stk">
+        <div class="name"><b>Qdrant</b><span class="role">Search by meaning</span></div>
+        <div class="why">A vector database. It stores those number-lists and, when you ask something, finds the <b>closest matches by meaning</b> instead of exact keywords. This is the engine behind "recall the right context."</div>
+      </div>
+      <div class="stk">
+        <div class="name"><b>SQLite</b><span class="role">The record book</span></div>
+        <div class="why">A plain, file-based database holding the <b>source of truth</b>: who saved what, when, the original text, the tags, and the hashed API keys. Boring on purpose. Boring is reliable.</div>
+      </div>
+      <div class="stk">
+        <div class="name"><b>Caddy</b><span class="role">The locked front door</span></div>
+        <div class="why">A reverse proxy that puts <b>automatic HTTPS</b> in front of everything. It's the only piece exposed to the internet — Qdrant and the database sit behind it, unreachable from outside.</div>
+      </div>
+      <div class="stk">
+        <div class="name"><b>Docker</b><span class="role">The shipping box</span></div>
+        <div class="why">All of the above run as containers started by one command. That's how a non-developer can stand the whole thing up on a server <b>without wiring each piece by hand</b>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BRIDGE — product-native, no Elux in the loud copy -->
+<section>
+  <div class="wrap">
+    <div class="eluxrail">
+      <div class="hd"><span class="dot"></span>No black box</div>
+      <div class="body">
+        <h3>The whole thing is open. Feel it on our key, then own it on yours.</h3>
+        <p>Nothing here is a mockup. The gateway, the connector, the docs — all open, all yours to run. Start on a trial key in minutes, and when you outgrow it, <b>stand up your own server</b> and keep your team's memory entirely on your box.</p>
+        <div class="acts">
+          <a href="#get" class="btn solid">Get the build + your key →</a>
+          <a href="install.html" class="btn ghost">Read the install guide →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO -->
+<section>
+  <div class="wrap">
+    <div class="sec-head"><span class="idx">04 /</span><h2>Who it's for</h2></div>
+    <div class="forwho">
+      <div class="col yes">
+        <h3>Right for you if…</h3>
+        <ul>
+          <li><span class="mk">→</span>Your team runs Claude alongside other models</li>
+          <li><span class="mk">→</span>You keep hitting limits mid-work</li>
+          <li><span class="mk">→</span>You're tired of re-pasting the same context</li>
+          <li><span class="mk">→</span>You want your data on your own server</li>
+          <li><span class="mk">→</span>You can tolerate a beta to get in early</li>
+        </ul>
+      </div>
+      <div class="col no">
+        <h3>Skip it if…</h3>
+        <ul>
+          <li><span class="mk">✕</span>You want old chat history auto-imported</li>
+          <li><span class="mk">✕</span>You won't or can't run a small server</li>
+          <li><span class="mk">✕</span>You need a polished, finished product now</li>
+          <li><span class="mk">✕</span>You're a solo user on one model only</li>
+          <li><span class="mk">✕</span>You expect memory to make models smarter</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GET THE BUILD — email unlocks the package -->
+<section id="get">
+  <div class="wrap">
+    <div class="sec-head"><span class="idx">05 / Get the build</span><h2>Drop your email. Get everything to run it.</h2></div>
+    <p class="price-line">No price, no card. It's a beta — early teams get in free. One email and we send you the whole package: a <b>key on our gateway</b> so you can feel it in minutes, plus the code and docs to <b>own it yourself</b> whenever you're ready.</p>
+
+    <div class="honest">
+      <div class="lab">Honest</div>
+      <ul>
+        <li><span class="x">✕</span><span><b>No old-chat import.</b> Memory starts empty and fills from the day you start saving.</span></li>
+        <li><span class="x">✕</span><span><b>It's a beta.</b> Small team, rough edges, things change.</span></li>
+        <li><span class="x">✕</span><span><b>It won't make a weak model smart.</b> Memory carries context, not brains.</span></li>
+      </ul>
+    </div>
+
+    <div class="pack">
+      <div class="left">
+        <h3>What lands in your inbox</h3>
+        <ul>
+          <li><span class="ic">→</span><span><b>Your secret key</b>A personal <code>msk_</code> key — your own isolated memory, capped at a few saves so you can feel it without setup.</span></li>
+          <li><span class="ic">→</span><span><b>The endpoint URL</b>Point Claude or any model at our gateway and start saving + recalling immediately.</span></li>
+          <li><span class="ic">→</span><span><b>Non-tech install docs</b>A plain-English guide that uses Claude or OpenAI to walk you through setup — no terminal skills assumed. <a href="install.html" style="color:var(--red);font-weight:700">Preview it →</a></span></li>
+          <li><span class="ic">→</span><span><b>The GitHub repos</b>The gateway and the local connector — the full, open build. Run your own server when you outgrow the trial.</span></li>
+        </ul>
+      </div>
+      <div class="right">
+        <form class="pform" id="signupForm" novalidate>
+          <label for="email">Your email</label>
+          <input type="email" id="email" name="email" placeholder="you@team.com" required autocomplete="email">
+          <button type="submit" id="signupBtn">Send me the package →</button>
+          <p class="formMsg" id="formMsg" role="status" aria-live="polite"></p>
+          <p class="verify">We'll send a one-click confirm first — that's how we keep dummy and throwaway emails out. Click it, and the package arrives.</p>
+          <p class="fine">We onboard a few teams at a time, personally. Real email gets a real key. No spam, unsubscribe anytime.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="brand"><span class="sq"></span>ViMemory</span>
+    <p style="max-width:60ch;line-height:1.65">One memory for every model your team uses. Hit a limit, switch the model, keep going. Open build. Isolated per key. Beta.</p>
+    <p style="margin-top:14px">© 2026 · A working build by <a href="https://www.elux.space" target="_blank" rel="noopener" style="color:var(--ink);font-weight:700">Elux Space</a> · We don't just design it. We build it.</p>
+  </div>
+</footer>
+
+<script>
+/* How-it-works scroll timeline: light up circles + fill the red track as you scroll. */
+(function () {
+  var timeline = document.getElementById('timeline');
+  var vtrack   = document.getElementById('vtrack');
+  var vfill    = document.getElementById('vfill');
+  if (!timeline || !vtrack || !vfill) return;
+  var circles  = Array.from(document.querySelectorAll('.scirc'));
+  var rows      = Array.from(document.querySelectorAll('.srow'));
+
+  function layoutTrack() {
+    if (window.innerWidth <= 720 || circles.length < 2) return;
+    var tlRect   = timeline.getBoundingClientRect();
+    var tlAbsTop = tlRect.top + window.scrollY;
+    var c0 = circles[0].getBoundingClientRect();
+    var cL = circles[circles.length - 1].getBoundingClientRect();
+    var firstCenter = c0.top + window.scrollY + c0.height / 2 - tlAbsTop;
+    var lastCenter  = cL.top + window.scrollY + cL.height / 2 - tlAbsTop;
+    var leftPos     = c0.left - tlRect.left + c0.width / 2;
+    vtrack.style.left   = leftPos + 'px';
+    vtrack.style.top    = firstCenter + 'px';
+    vtrack.style.height = (lastCenter - firstCenter) + 'px';
+    vtrack.style.transform = 'translateX(-50%)';
+  }
+
+  function updateProgress() {
+    var trigger    = window.innerHeight * 0.62;
+    var lastActive = -1;
+    rows.forEach(function (row, i) {
+      var r = row.getBoundingClientRect();
+      var mid = r.top + r.height / 2;
+      if (mid < trigger) { lastActive = i; circles[i].classList.add('active'); }
+      else { circles[i].classList.remove('active'); }
+    });
+    if (lastActive < 0) vfill.style.height = '0%';
+    else if (lastActive >= rows.length - 1) vfill.style.height = '100%';
+    else vfill.style.height = ((lastActive + 1) / rows.length * 100) + '%';
+  }
+
+  function init() { layoutTrack(); updateProgress(); }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', init);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+
+<script>
+/* ── Email signup → Loops ──────────────────────────────────────────────
+   SETUP: paste your Loops form endpoint URL below. Get it from loops.so:
+   create a Form, copy the URL that looks like
+   https://app.loops.so/api/newsletter-form/XXXXXXXXXXXXXXXX
+*/
+(function () {
+  var LOOPS_ENDPOINT = "https://app.loops.so/api/newsletter-form/cmqnaxzc502w30j0zjtm2xgfg";
+
+  var form = document.getElementById('signupForm');
+  var input = document.getElementById('email');
+  var btn = document.getElementById('signupBtn');
+  var msg = document.getElementById('formMsg');
+  if (!form) return;
+
+  function show(text, type) {
+    msg.textContent = text;
+    msg.className = 'formMsg show ' + type;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = (input.value || '').trim();
+    if (!email || email.indexOf('@') < 1 || email.indexOf('.') < 0) {
+      show('Please enter a valid email.', 'err');
+      input.focus();
+      return;
+    }
+    if (LOOPS_ENDPOINT.indexOf('REPLACE_') === 0) {
+      show('Form not connected yet — add your Loops endpoint.', 'err');
+      return;
+    }
+
+    var original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    var body = new URLSearchParams();
+    body.append('email', email);
+    body.append('mailingLists', 'cmqnbhuqo1gxz0jy8280l3afn');
+    body.append('userGroup', 'vimemory-waitlist');
+    body.append('source', 'lpv3-landing');
+
+    var done = false;
+    function succeed() {
+      if (done) return; done = true;
+      form.reset();
+      show('Check your inbox — confirm your email and your key is on the way.', 'ok');
+      btn.textContent = 'Sent ✓';
+    }
+    function fail(text) {
+      if (done) return; done = true;
+      show(text || 'Something went wrong. Try again in a moment.', 'err');
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+
+    /* Loops form endpoint: submit no-cors so it works from any origin
+       (local file:// and live domain alike). The browser hides the
+       response in no-cors mode, so a completed request = success. */
+    var timeout = setTimeout(function () { succeed(); }, 6000);
+
+    fetch(LOOPS_ENDPOINT, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString()
+    })
+    .then(function () { clearTimeout(timeout); succeed(); })
+    .catch(function () { clearTimeout(timeout); fail('Network error — check your connection and try again.'); });
+  });
+})();
+</script>
+
+</body>
+</html>
