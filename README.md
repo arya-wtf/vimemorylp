@@ -73,10 +73,6 @@ It's all right there in `index.html` and `install.html`, in plain HTML. No CMS, 
 **Why does the landing page list the bad parts of the product?**
 Because honesty converts the right people and repels the wrong ones. Read the page.
 
-## Built by
-
-A working build by **[Elux Space](https://www.elux.space)**. We don't just design it. We build it.
-
 ## License
 
 [MIT](LICENSE).
